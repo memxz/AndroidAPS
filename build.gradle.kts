@@ -6,6 +6,8 @@ buildscript {
     repositories {
         maven("https://mirrors.cloud.tencent.com/nexus/repository/google")
         maven("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/")
+        google() // Fallback to Google repository
+        mavenCentral() // Fallback to Maven Central repository
     }
     dependencies {
         classpath("com.android.tools.build:gradle:8.2.1")
@@ -56,9 +58,21 @@ allprojects {
     apply(plugin = "jacoco")
 }
 
+// Include QRGen dependency using JitPack
+subprojects {
+    dependencies {
+        implementation("com.github.kenglxn:QRGen:3.0.1") // Resolving QRGen from JitPack
+    }
+}
+
 // Setup all reports aggregation
 apply(from = "jacoco_aggregation.gradle.kts")
 
 tasks.register<Delete>("clean").configure {
     delete(rootProject.buildDir)
+}
+
+// Exclude native libraries if not needed
+configurations.all {
+    exclude(group = "com.github.kenglxn.QRGen", module = "android")
 }
