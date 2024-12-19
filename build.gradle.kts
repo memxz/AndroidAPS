@@ -30,6 +30,9 @@ allprojects {
         maven("https://mirrors.cloud.tencent.com/nexus/repository/google")
         maven("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/")
         maven("https://jitpack.io")
+        // add google mavenrepo & maven central
+        google()
+        mavenCentral()
     }
     tasks.withType<KotlinCompile> {
         kotlinOptions {
