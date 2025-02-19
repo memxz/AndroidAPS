@@ -4,42 +4,47 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     repositories {
-        google()
-        mavenCentral()
+        google() // Fallback to Google repository
+        mavenCentral() // Fallback to Maven Central repository
+        maven("https://mirrors.cloud.tencent.com/nexus/repository/google")
+        maven("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/")
     }
     dependencies {
-        classpath(libs.com.android.tools.build)
-        classpath(libs.com.google.gms)
-        classpath(libs.com.google.firebase.gradle)
+        classpath("com.android.tools.build:gradle:8.2.1")
+        classpath("com.google.gms:google-services:4.4.0")
+        classpath("com.google.firebase:firebase-crashlytics-gradle:2.9.9")
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
 
-        classpath(libs.kotlin.gradlePlugin)
-        classpath(libs.kotlin.allopen)
-        classpath(libs.kotlin.serialization)
+        classpath(kotlin("gradle-plugin", version = Libs.Kotlin.kotlin))
+        classpath(kotlin("allopen", version = Libs.Kotlin.kotlin))
+        classpath(kotlin("serialization", version = Libs.Kotlin.kotlin))
     }
 }
 
 plugins {
-    alias(libs.plugins.klint)
-    alias(libs.plugins.moduleDependencyGraph)
-    alias(libs.plugins.ksp)
+    id("org.jlleitschuh.gradle.ktlint") version "12.0.3"
 }
 
 allprojects {
     repositories {
+        // add google mavenrepo & maven central
         google()
         mavenCentral()
-        maven("https://maven.google.com")
+        maven("https://mirrors.cloud.tencent.com/nexus/repository/google")
+        maven("https://mirrors.cloud.tencent.com/nexus/repository/maven-public/")
         maven("https://jitpack.io")
+        maven("https://maven.google.com")
     }
-    tasks.withType<KotlinCompile>().configureEach {
-        compilerOptions {
-            freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
-            freeCompilerArgs.add("-opt-in=kotlin.ExperimentalUnsignedTypes")
-            freeCompilerArgs.add("-Xjvm-default=all") //Support @JvmDefault
-            jvmTarget.set(Versions.jvmTarget)
+    tasks.withType<KotlinCompile> {
+        kotlinOptions {
+            freeCompilerArgs = listOf(
+                "-opt-in=kotlin.RequiresOptIn",
+                "-opt-in=kotlin.ExperimentalUnsignedTypes",
+                "-Xjvm-default=all"     //Support @JvmDefault
+            )
+            jvmTarget = "11"
         }
     }
     gradle.projectsEvaluated {
@@ -58,5 +63,5 @@ allprojects {
 apply(from = "jacoco_aggregation.gradle.kts")
 
 tasks.register<Delete>("clean").configure {
-    delete(rootProject.layout.buildDirectory)
+    delete(rootProject.buildDir)
 }
